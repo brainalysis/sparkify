@@ -6,7 +6,7 @@ from pyspark.sql import DataFrame as SparkDataFrame
 
 
 from SparkAutoML.ml_module.preprocessing_module.preprocess_file import Preprocessor
-from SparkAutoML.utilities.models_dict_file import models_dict
+from SparkAutoML.utilities.models_dict_file import model_dict
 
 
 class BClassifier(Preprocessor):
@@ -36,7 +36,9 @@ class BClassifier(Preprocessor):
     def create_model(self, model_name: str) -> None:
         # first run the preprocessing pipeline
         self.run_pipeline()
-        pipe = self.pipeline.get_stage()
-        pipe.append(models_dict["model_name"])
-        self.pipeline.set_stage(pipe)
+        pipe = self.pipeline.getStages()
+        pipe.append(model_dict[model_name])
+        self.pipeline.setStages(pipe)
+        
+        
 
