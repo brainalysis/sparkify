@@ -1,5 +1,4 @@
 from typing import List
-from databricks import koalas as ks
 from pyspark.sql import DataFrame as SparkDataFrame
 
 from pyspark.ml.feature import (
@@ -7,6 +6,7 @@ from pyspark.ml.feature import (
     VectorIndexer,
     OneHotEncoder,
     StringIndexer,
+    Imputer,
 )
 from pyspark.ml import Pipeline
 
