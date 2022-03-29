@@ -40,11 +40,10 @@ class Preprocessor:
         """This function adds suffix to the list of columns"""
         new_cols = [column + str(suffix) for column in input_cols]
         return new_cols
-    
-    def _cast_double_type(self,df:SparkDataFrame, column:str)->SparkDataFrame:
+
+    def _cast_double_type(self, df: SparkDataFrame, column: str) -> SparkDataFrame:
         df = df.withColumn(column, df[column].cast(DoubleType()))
         return df
-        
 
     # ====================== Transformers ===================================
 
@@ -139,10 +138,14 @@ class Preprocessor:
     # ====================================Executions=================================================
     def run_pipeline(self):
         """ This is will run pipeline accoding to user selections"""
-        
+
         # make sure target column is of double type
-        self.train_data = self._cast_double_type(df =self.train_data,column=self.target_feature)
-        self.hold_out_data = self._cast_double_type(df =self.hold_out_data,column=self.target_feature)
+        self.train_data = self._cast_double_type(
+            df=self.train_data, column=self.target_feature
+        )
+        self.hold_out_data = self._cast_double_type(
+            df=self.hold_out_data, column=self.target_feature
+        )
 
         # numeric only pipeline
         if (
@@ -184,26 +187,20 @@ class Preprocessor:
         ):
             self._pipeline_mixed_imputer()
 
-
         return None
-    
+
     def fit_transform(self) -> None:
         """fit on the preprocessing file. Make sure to execute the run_pipeline method first"""
         self.fitted_pipeline = self.pipeline.fit(self.train_data)
         self.train_data_transformed = self.fitted_pipeline.transform(self.train_data)
-        
+
         return None
-    
+
     def transform(self) -> None:
         """transform hold out data"""
         self.hold_out_data_transformed = self.fitted_pipeline.transform(
-        self.hold_out_data
-                            )
+            self.hold_out_data
+        )
 
         return None
-
-    
-        
-        
-        
 
