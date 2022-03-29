@@ -1,8 +1,8 @@
 """ This applies Binary Classification using models available in pyspark"""
 from typing import List
 
-from pyspark.ml import Pipeline
 from pyspark.sql import DataFrame as SparkDataFrame
+from pyspark.ml.evaluation import BinaryClassificationEvaluator
 
 
 from SparkAutoML.ml_module.preprocessing_module.preprocess_file import Preprocessor
@@ -52,7 +52,9 @@ class BClassifier(Preprocessor):
         
         
     
-    # def evaluate_model(self)-> None:
+    def evaluate_model(self)-> None:
+        """evaluation on train and holdout data set"""
+        
         
         
         
