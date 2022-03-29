@@ -174,31 +174,23 @@ class Preprocessor:
         ):
             self._pipeline_mixed_imputer()
 
-        # ======================== FIT & TRANSFORM ================================
-        # fit & transform
-        # self.fitted_pipeline = self.pipeline.fit(self.train_data)
-        # self.train_data_transformed = self.fitted_pipeline.transform(self.train_data)
-        # self.hold_out_data_transformed = self.fitted_pipeline.transform(
-        #     self.hold_out_data
-        # )
 
         return None
     
     def fit_transform(self) -> None:
-        """fit on the preprocessing file"""
-        self.run_pipeline()
+        """fit on the preprocessing file. Make sure to execute the run_pipeline method first"""
         self.fitted_pipeline = self.pipeline.fit(self.train_data)
         self.train_data_transformed = self.fitted_pipeline.transform(self.train_data)
         
         return None
     
     def transform(self) -> None:
-    """transform hold out data"""
+        """transform hold out data"""
         self.hold_out_data_transformed = self.fitted_pipeline.transform(
         self.hold_out_data
                             )
 
-    return None
+        return None
 
     
         

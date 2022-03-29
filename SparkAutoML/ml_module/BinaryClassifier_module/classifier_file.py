@@ -34,11 +34,27 @@ class BClassifier(Preprocessor):
         return None
 
     def create_model(self, model_name: str) -> None:
-        # first run the preprocessing pipeline
+        # instantiate the model
+        self.model = model_dict[model_name]
+        self.model = self.model(featuresCol='features',labelCol=self.target_feature)
+        
+        # run the preprocessing pipeline
         self.run_pipeline()
         pipe = self.pipeline.getStages()
-        pipe.append(model_dict[model_name])
+        pipe.append(self.model)
         self.pipeline.setStages(pipe)
+        
+        # now do fit transform
+        self.fit_transform()
+        # fit on hold out data set
+        self.transform()
+        
+        
+        
+    
+    # def evaluate_model(self)-> None:
+        
+        
         
         
 
