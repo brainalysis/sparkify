@@ -1,6 +1,7 @@
 """ This applies Binary Classification using models available in pyspark"""
 from typing import List
 
+
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.ml.evaluation import (
     BinaryClassificationEvaluator,
@@ -15,6 +16,7 @@ from SparkAutoML.utils.models_dict_file import model_dict
 
 class BClassifier(Preprocessor):
     def create_model(self, model_name: str) -> None:
+        print(f"Training started for {model_name} ....")
         # instantiate the model
         self.model_name = model_name
         self.model = model_dict[model_name]
@@ -30,6 +32,7 @@ class BClassifier(Preprocessor):
         self.fit_transform()
         # fit on hold out data set
         self.transform()
+        print("Training successfully ended ....")
 
     def evaluator(
         self,
