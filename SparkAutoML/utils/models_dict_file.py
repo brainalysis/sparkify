@@ -4,11 +4,22 @@ from pyspark.ml.classification import (
     LogisticRegression,
     GBTClassifier,
     RandomForestClassifier,
+    DecisionTreeClassifier,
+    MultilayerPerceptronClassifier,
+    LinearSVC,
+    NaiveBayes,
+    FMClassifier,
 )
 
 model_dict = {
-    "lr": LogisticRegression,
-    "rf": RandomForestClassifier,
-    "gb": GBTClassifier,
+    "lrc": LogisticRegression,
+    "rfc": RandomForestClassifier,
+    "gbc": GBTClassifier,
+    "dtc": DecisionTreeClassifier,
+    "mlpc":MultilayerPerceptronClassifier,
+    "svc":LinearSVC,
+    "nbc":NaiveBayes,
+    "fmc":FMClassifier
+    
 }
 

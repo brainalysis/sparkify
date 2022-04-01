@@ -31,6 +31,6 @@ cf = BClassifier(training_data=train
                      impute_missing_values=True, missing_value_strategy="mean",
                     )
 
-cf.create_model('rf')
+cf.create_model('dt')
 
 print("done")

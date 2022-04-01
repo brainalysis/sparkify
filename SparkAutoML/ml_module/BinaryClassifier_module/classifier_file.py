@@ -15,12 +15,12 @@ from SparkAutoML.utils.models_dict_file import model_dict
 
 
 class BClassifier(Preprocessor):
-    def create_model(self, model_name: str) -> None:
+    def create_model(self, model_name: str,**args) -> None:
         print(f"Training started for {model_name} ....")
         # instantiate the model
         self.model_name = model_name
         self.model = model_dict[model_name]
-        self.model = self.model(featuresCol="features", labelCol=self.target_feature)
+        self.model = self.model(featuresCol="features", labelCol=self.target_feature,**args)
 
         # run the preprocessing pipeline
         self.run_pipeline()
