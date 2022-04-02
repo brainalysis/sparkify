@@ -74,30 +74,34 @@ class BClassifier(Preprocessor):
 
         return results
 
-    def evaluate_model(self) -> None:
-        """evaluation on train and holdout data set"""
+    def evaluate_model(self,evaluate_on:str="train") -> None:
+        """evaluation on train or holdout data set"""
         # make final result holder
         self.evaluation_results = ps.DataFrame()
 
         # evaluate for training data set
-        train_results = self.evaluator(
+        results = self.evaluator(
             self.train_data_transformed,
             self.model_name,
             self.target_feature,
-            data_set_type="train",
-        )
-
-        # evaluate for test data set
-        test_results = self.evaluator(
-            self.hold_out_data_transformed,
-            self.model_name,
-            self.target_feature,
-            data_set_type="hold_out",
+            data_set_type=evaluate_on,
         )
 
         # append results
-        self.evaluation_results = self.evaluation_results.append(train_results)
-        self.evaluation_results = self.evaluation_results.append(test_results)
+        if evaluate_on == "train":
+            
+            results = self.evaluator(
+            self.train_data_transformed,
+            self.model_name,
+            self.target_feature,
+            data_set_type=evaluate_on,)
+            self.evaluation_results_training = results
+        else:
+            results = self.evaluator(
+            self.hold_out_data_transformed,
+            self.model_name,
+            self.target_feature,
+            data_set_type=evaluate_on,)
+            self.evaluation_results_hold_out = results
 
-        return self.evaluation_results
-
+        return results
