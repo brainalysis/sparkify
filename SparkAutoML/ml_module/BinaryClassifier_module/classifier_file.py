@@ -32,7 +32,7 @@ class BClassifier(Preprocessor):
         self.fit_transform()
         # fit on hold out data set
         self.transform()
-        print("Training successfully ended ....")
+        print(f"Training successfully ended for {model_name} ....")
 
     def evaluator(
         self,
@@ -105,3 +105,35 @@ class BClassifier(Preprocessor):
             self.evaluation_results_hold_out = results
 
         return results
+    
+    def compare_models(self,sort_by:str="auc"):
+        """use available models in mlib and evaluate them on holdout dataset"""
+        
+        
+        results = ps.DataFrame()
+        self.compare_model_dict = {}
+        # create a placeholder
+        for model in model_dict.keys(): 
+            # try to train all models 
+            try:
+                self.create_model(model)
+                eval = self.evaluate_model(evaluate_on="holdout")
+                results = results.append(eval)
+                self.compare_model_dict[model] = self.fitted_pipeline
+            except:
+                pass
+        
+        # sort results by user choice
+        results = (
+            results.reset_index(drop=True)
+            .sort_values(by=sort_by,ascending=False)
+        )
+
+        # keep the top performing pipeline
+        self.fitted_pipeline = self.compare_model_dict[results.iloc[0,0]]
+        self.evaluation_results_hold_out = results
+            
+        return results
+        
+        
+        
