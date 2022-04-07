@@ -1,9 +1,13 @@
 """ this module calculate evaluation metrics for pyspark mlib """
 
 from pyspark.sql import DataFrame as SparkDataFrame
+import pyspark.pandas as ps
+from pyspark.ml.evaluation import (
+    BinaryClassificationEvaluator,
+    MulticlassClassificationEvaluator,
+)
 
 def evaluator(
-    self,
     df: SparkDataFrame,
     model_name: str,
     target_column: str,
