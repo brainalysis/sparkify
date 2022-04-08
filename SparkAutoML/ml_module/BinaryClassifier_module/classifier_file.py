@@ -80,6 +80,14 @@ class BClassifier(Preprocessor):
         self.evaluation_results_hold_out = results
             
         return results
+
+    def predict_model(self,df:SparkDataFrame)->SparkDataFrame:
+        """make prediction on future dataset (data without label) """
+
+        # keep the top performing pipeline
+        results = self.fitted_pipeline.transform(df)
+            
+        return results
         
         
         
