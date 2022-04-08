@@ -42,6 +42,7 @@ class Preprocessor:
         return new_cols
 
     def _cast_double_type(self, df: SparkDataFrame, column: str) -> SparkDataFrame:
+        print(type(df))
         df = df.withColumn(column, df[column].cast(DoubleType()))
         return df
 
