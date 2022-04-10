@@ -12,12 +12,14 @@ from SparkAutoML.utils.evaluator_file import evaluator
 
 
 class BClassifier(Preprocessor):
-    def create_model(self, model_name: str,**args) -> None:
+    def create_model(self, model_name: str, **args) -> None:
         print(f"Training started for {model_name} ....")
         # instantiate the model
         self.model_name = model_name
         self.model = model_dict[model_name]
-        self.model = self.model(featuresCol="features", labelCol=self.target_feature,**args)
+        self.model = self.model(
+            featuresCol="features", labelCol=self.target_feature, **args
+        )
 
         # run the preprocessing pipeline
         self.run_pipeline()
@@ -31,36 +33,36 @@ class BClassifier(Preprocessor):
         self.transform()
         print(f"Training successfully ended for {model_name} ....")
 
-
-    def evaluate_model(self,evaluate_on:str="train") -> None:
+    def evaluate_model(self, evaluate_on: str = "train") -> None:
         """evaluation on train or holdout data set"""
         if evaluate_on == "train":
-            
+
             results = evaluator(
-            self.train_data_transformed,
-            self.model_name,
-            self.target_feature,
-            data_set_type=evaluate_on,)
+                self.train_data_transformed,
+                self.model_name,
+                self.target_feature,
+                data_set_type=evaluate_on,
+            )
             self.evaluation_results_training = results
         else:
             results = evaluator(
-            self.hold_out_data_transformed,
-            self.model_name,
-            self.target_feature,
-            data_set_type=evaluate_on,)
+                self.hold_out_data_transformed,
+                self.model_name,
+                self.target_feature,
+                data_set_type=evaluate_on,
+            )
             self.evaluation_results_hold_out = results
 
         return results
-    
-    def compare_models(self,sort_by:str="auc"):
+
+    def compare_models(self, sort_by: str = "auc"):
         """use available models in mlib and evaluate them on holdout dataset"""
-        
-        
+
         results = ps.DataFrame()
         self.compare_model_dict = {}
         # create a placeholder
-        for model in model_dict.keys(): 
-            # try to train all models 
+        for model in model_dict.keys():
+            # try to train all models
             try:
                 self.create_model(model)
                 eval = self.evaluate_model(evaluate_on="holdout")
@@ -68,26 +70,22 @@ class BClassifier(Preprocessor):
                 self.compare_model_dict[model] = self.fitted_pipeline
             except:
                 pass
-        
+
         # sort results by user choice
-        results = (
-            results.reset_index(drop=True)
-            .sort_values(by=sort_by,ascending=False)
+        results = results.reset_index(drop=True).sort_values(
+            by=sort_by, ascending=False
         )
 
         # keep the top performing pipeline
-        self.fitted_pipeline = self.compare_model_dict[results.iloc[0,0]]
+        self.fitted_pipeline = self.compare_model_dict[results.iloc[0, 0]]
         self.evaluation_results_hold_out = results
-            
+
         return results
 
-    def predict_model(self,df:SparkDataFrame)->SparkDataFrame:
+    def predict_model(self, df: SparkDataFrame) -> SparkDataFrame:
         """make prediction on future dataset (data without label) """
 
         # keep the top performing pipeline
         results = self.fitted_pipeline.transform(df)
-            
+
         return results
-        
-        
-        

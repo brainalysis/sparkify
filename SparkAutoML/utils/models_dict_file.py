@@ -16,10 +16,9 @@ model_dict = {
     "rfc": RandomForestClassifier,
     "gbc": GBTClassifier,
     "dtc": DecisionTreeClassifier,
-    "mlpc":MultilayerPerceptronClassifier,
-    "svc":LinearSVC,
-    "nbc":NaiveBayes,
-    "fmc":FMClassifier
-    
+    "mlpc": MultilayerPerceptronClassifier,
+    "svc": LinearSVC,
+    "nbc": NaiveBayes,
+    "fmc": FMClassifier,
 }
 

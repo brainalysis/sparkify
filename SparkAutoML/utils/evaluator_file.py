@@ -7,12 +7,13 @@ from pyspark.ml.evaluation import (
     MulticlassClassificationEvaluator,
 )
 
+
 def evaluator(
     df: SparkDataFrame,
     model_name: str,
     target_column: str,
     data_set_type: str = "training",
-    ):
+):
     # AUC
     bc = BinaryClassificationEvaluator(
         rawPredictionCol="rawPrediction",
