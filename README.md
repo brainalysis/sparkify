@@ -11,4 +11,5 @@ Thanks
 
 
 ### How to install
+pip install SparkAutoML
 
