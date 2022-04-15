@@ -8,7 +8,7 @@ import pyspark.pandas as ps
 
 from SparkAutoML.ml_module.preprocessing_module.preprocess_file import Preprocessor
 from SparkAutoML.utils.models_dict_file import model_dict
-from SparkAutoML.utils.evaluator_file import evaluator
+from SparkAutoML.utils.BClassifier_evaluator_file import evaluator
 
 
 class BClassifier(Preprocessor):
