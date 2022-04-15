@@ -1,14 +1,10 @@
 from typing import List
-import pyspark.pandas as ps
-from pyspark.sql import DataFrame as SparkDataFrame
 
-from pyspark.ml.feature import (
-    VectorAssembler,
-    VectorIndexer,
-    OneHotEncoder,
-    StringIndexer,
-)
-from pyspark.ml import Pipeline
+# import pyspark
+import pyspark.pandas as ps
+
+# from pyspark.sql import DataFrame as SparkDataFrame
+
 
 from SparkAutoML.ml_module.BinaryClassifier_module.classifier_file import BClassifier
 
@@ -44,6 +40,10 @@ cf = BClassifier(
     missing_value_strategy="mean",
 )
 
-cf.create_model("dt")
+cf.create_model("dtc")
+
+pdf = cf.predict_model(test)
+
+pdf.show()
 
 print("done")
