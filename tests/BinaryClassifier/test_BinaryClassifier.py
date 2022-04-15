@@ -45,3 +45,23 @@ def test_create_model(sample_data_train, sample_data_holdout, sample_data_unseen
     # make sure that transformed data set has 'features' column
     assert "prediction" in pred.columns
 
+
+def test_compare_model(sample_data_train, sample_data_holdout, sample_data_unseen):
+
+    bc = BClassifier(
+        training_data=sample_data_train,
+        hold_out_data=sample_data_holdout,
+        target_feature="label",
+        numeric_features=["col_a", "col_b"],
+        categorical_features=None,
+    )
+
+    # create model
+    bc.compare_models()
+
+    # make prediction
+    pred = bc.predict_model(sample_data_unseen)
+
+    # make sure that transformed data set has 'features' column
+    assert "prediction" in pred.columns
+
