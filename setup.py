@@ -19,7 +19,7 @@ setup(
     author_email="<fahadakbar@gmail.com>",
     description=DESCRIPTION,
     # long_description_content_type="text/markdown",
-    long_description=long_description,
+    # long_description=long_description,
     packages=find_packages(),
     install_requires=["pandas", "numpy", "pyspark >= 3.2.1", "pytest"],
     keywords=["python", "spark", "machine learning",],
