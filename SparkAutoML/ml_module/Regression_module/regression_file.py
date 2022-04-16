@@ -1,4 +1,4 @@
-""" This applies Binary Classification using models available in pyspark"""
+""" This applies Regression models available in pyspark"""
 from typing import List
 
 
@@ -7,16 +7,16 @@ import pyspark.pandas as ps
 
 
 from SparkAutoML.ml_module.preprocessing_module.preprocess_file import Preprocessor
-from SparkAutoML.utils.models_dict_file import model_dict_classifier
-from SparkAutoML.utils.BClassifier_evaluator_file import evaluator
+from SparkAutoML.utils.models_dict_file import model_dict_regression
+from SparkAutoML.utils.Regression_evaluator_file import evaluator
 
 
-class BClassifier(Preprocessor):
+class Regressor(Preprocessor):
     def create_model(self, model_name: str, **args) -> None:
         print(f"Training started for {model_name} ....")
         # instantiate the model
         self.model_name = model_name
-        self.model = model_dict_classifier[model_name]
+        self.model = model_dict_regression[model_name]
         self.model = self.model(
             featuresCol="features", labelCol=self.target_feature, **args
         )
@@ -55,13 +55,13 @@ class BClassifier(Preprocessor):
 
         return results
 
-    def compare_models(self, sort_by: str = "auc"):
+    def compare_models(self, sort_by: str = "r2"):
         """use available models in mlib and evaluate them on holdout dataset"""
 
         results = ps.DataFrame()
         self.compare_model_dict = {}
         # create a placeholder
-        for model in model_dict_classifier.keys():
+        for model in model_dict_regression.keys():
             # try to train all models
             try:
                 self.create_model(model)

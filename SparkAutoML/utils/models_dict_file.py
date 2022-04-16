@@ -11,7 +11,18 @@ from pyspark.ml.classification import (
     FMClassifier,
 )
 
-model_dict = {
+from pyspark.ml.regression import (
+    LinearRegression,
+    GeneralizedLinearRegression,
+    DecisionTreeRegressor,
+    RandomForestRegressor,
+    GBTRegressor,
+    AFTSurvivalRegression,
+    IsotonicRegression,
+    FMRegressor,
+)
+
+model_dict_classifier = {
     "lrc": LogisticRegression,
     "rfc": RandomForestClassifier,
     "gbc": GBTClassifier,
@@ -22,3 +33,14 @@ model_dict = {
     "fmc": FMClassifier,
 }
 
+
+model_dict_regression = {
+    "lr": LinearRegression,
+    "glr": GeneralizedLinearRegression,
+    "dtr": DecisionTreeRegressor,
+    "rfr": RandomForestRegressor,
+    "gbr": GBTRegressor,
+    "sr": AFTSurvivalRegression,
+    "isor": IsotonicRegression,
+    "fmr": FMRegressor,
+}
