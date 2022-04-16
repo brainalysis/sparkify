@@ -1,5 +1,5 @@
 # SparkAutoML
-<img alt="PyPI" src="https://img.shields.io/pypi/v/SparkAutoML"> <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/SparkAutoML"> <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/SparkAutoML"> <img alt="GitHub" src="https://img.shields.io/github/license/brainalysis/sparkify"> <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/brainalysis/sparkify">
+<img alt="PyPI" src="https://img.shields.io/pypi/v/SparkAutoML"> <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/SparkAutoML"> <img alt="GitHub" src="https://img.shields.io/github/license/brainalysis/sparkify"> <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/brainalysis/sparkify">[![Downloads](https://pepy.tech/badge/sparkautoml)](https://pepy.tech/project/sparkautoml)
 
 #### ***This is a TRIAL version***
 
