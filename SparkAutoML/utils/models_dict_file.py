@@ -23,7 +23,7 @@ from pyspark.ml.regression import (
 )
 
 model_dict_classifier = {
-    "lrc": LogisticRegression,
+    "lr": LogisticRegression,
     "rfc": RandomForestClassifier,
     "gbc": GBTClassifier,
     "dtc": DecisionTreeClassifier,
