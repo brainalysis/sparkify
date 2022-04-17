@@ -4,15 +4,13 @@ import os
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-#with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
-#    long_description = "\n" + fh.read()
 
 def readme():
     with open("README.md", encoding="utf8") as f:
         README = f.read()
     return README
 
-VERSION = "0.0.7"
+VERSION = "0.0.8"
 DESCRIPTION = "For an easy implementation of spark's ml  "
 
 

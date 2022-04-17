@@ -7,6 +7,7 @@ import pyspark.pandas as ps
 
 
 from SparkAutoML.ml_module.BinaryClassifier_module.classifier_file import BClassifier
+from SparkAutoML.ml_module.Regression_module.regression_file import Regressor
 
 # read data
 df = ps.read_csv("credit.csv")
@@ -30,20 +31,35 @@ spark_df = df.to_spark()
 train, test = spark_df.randomSplit([0.70, 0.30], seed=123)
 
 
-cf = BClassifier(
+# cf = BClassifier(
+#     training_data=train,
+#     hold_out_data=test,
+#     target_feature="default",
+#     numeric_features=["LIMIT_BAL",],
+#     categorical_features=["BAL_CAT", "maturity"],
+#     impute_missing_values=True,
+#     missing_value_strategy="mean",
+# )
+
+cf = Regressor(
     training_data=train,
     hold_out_data=test,
-    target_feature="default",
-    numeric_features=["LIMIT_BAL",],
+    target_feature="LIMIT_BAL",
+    numeric_features=["AGE", "EDUCATION",],
     categorical_features=["BAL_CAT", "maturity"],
-    impute_missing_values=True,
-    missing_value_strategy="mean",
+    # impute_missing_values=True,
+    # missing_value_strategy="mean",
 )
 
-cf.create_model("dtc")
+# cf.create_model("dtr")
+comp = cf.compare_models()
+
+# evl = cf.evaluate_model("hold_out")
+
+print(comp)
 
 pdf = cf.predict_model(test)
 
-pdf.show()
+# pdf.show()
 
-print("done")
+# print("done")
