@@ -11,7 +11,7 @@ def readme():
     return README
 
 VERSION = "0.0.8"
-DESCRIPTION = "For an easy implementation of spark's ml  "
+DESCRIPTION = "For an easy implementation of spark's machine learning library"
 
 
 # Setting up
