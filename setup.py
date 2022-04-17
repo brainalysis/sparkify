@@ -10,7 +10,8 @@ def readme():
         README = f.read()
     return README
 
-VERSION = "0.0.9"
+
+VERSION = "0.0.10"
 DESCRIPTION = "For an easy implementation of spark's machine learning library"
 
 

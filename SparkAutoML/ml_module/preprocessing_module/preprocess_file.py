@@ -26,6 +26,7 @@ class Preprocessor:
         categorical_features: List[str],
         impute_missing_values: bool = False,
         missing_value_strategy: str = "mean",
+        session_id=123,
     ) -> None:
 
         self.train_data = training_data
@@ -35,6 +36,7 @@ class Preprocessor:
         self.categorical_features = categorical_features
         self.impute_missing_values = impute_missing_values
         self.missing_value_strategy = missing_value_strategy
+        self.session_id = session_id
 
     def _column_name_generator(self, input_cols: list, suffix: str) -> list:
         """This function adds suffix to the list of columns"""
