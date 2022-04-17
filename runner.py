@@ -47,6 +47,7 @@ cf = Regressor(
     target_feature="LIMIT_BAL",
     numeric_features=["AGE", "EDUCATION",],
     categorical_features=["BAL_CAT", "maturity"],
+    session_id=345,
     # impute_missing_values=True,
     # missing_value_strategy="mean",
 )

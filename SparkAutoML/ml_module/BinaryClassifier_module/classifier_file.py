@@ -18,17 +18,17 @@ class BClassifier(Preprocessor):
         self.model_name = model_name
         self.model = model_dict_classifier[model_name]
 
-        # try with seed
-        try:
+        # models without seeds
+        if self.model_name in ["lr", "svc", "nbc"]:
+            self.model = self.model(
+                featuresCol="features", labelCol=self.target_feature, **args,
+            )
+        else:
             self.model = self.model(
                 featuresCol="features",
                 labelCol=self.target_feature,
                 seed=self.session_id,
                 **args,
-            )
-        except:
-            self.model = self.model(
-                featuresCol="features", labelCol=self.target_feature, **args
             )
 
         # run the preprocessing pipeline
