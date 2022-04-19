@@ -7,9 +7,16 @@ from pyspark.ml.feature import (
     OneHotEncoder,
     StringIndexer,
     Imputer,
+    Normalizer,
+    StandardScaler,
 )
 from pyspark.ml import Pipeline
 from pyspark.sql.types import DoubleType
+
+from SparkAutoML.ml_module.preprocessing_module.custom_transformers_file import (
+    Connector,
+    ColumnHandler,
+)
 
 
 class Preprocessor:
@@ -24,9 +31,14 @@ class Preprocessor:
         target_feature: "str",
         numeric_features: List[str],
         categorical_features: List[str],
+        session_id=123,
         impute_missing_values: bool = False,
         missing_value_strategy: str = "mean",
-        session_id=123,
+        normalize=False,
+        normalize_p=2,
+        standard_scale=False,
+        standard_scaler_withMean=False,
+        standard_scaler_withStd=True,
     ) -> None:
 
         self.train_data = training_data
@@ -34,112 +46,82 @@ class Preprocessor:
         self.target_feature = target_feature
         self.numeric_features = numeric_features
         self.categorical_features = categorical_features
+        self.session_id = session_id
         self.impute_missing_values = impute_missing_values
         self.missing_value_strategy = missing_value_strategy
-        self.session_id = session_id
+        self.normalize = normalize
+        self.normalize_p = normalize_p
+        self.standard_scale = standard_scale
+        self.standard_scaler_withMean = standard_scaler_withMean
+        self.standard_scaler_withStd = standard_scaler_withStd
 
-    def _column_name_generator(self, input_cols: list, suffix: str) -> list:
-        """This function adds suffix to the list of columns"""
-        new_cols = [column + str(suffix) for column in input_cols]
-        return new_cols
+    # def _column_name_generator(self, input_cols: list, suffix: str) -> list:
+    #     """This function adds suffix to the list of columns"""
+    #     new_cols = [column + str(suffix) for column in input_cols]
+    #     return new_cols
 
     def _cast_double_type(self, df: SparkDataFrame, column: str) -> SparkDataFrame:
         df = df.withColumn(column, df[column].cast(DoubleType()))
         return df
 
-    # ====================== Transformers ===================================
+    # ====================== Builder ===================================
 
-    def _indexer(self, input_cols: list, suffix: str = "_index") -> None:
-        """spark's indexer transformer"""
-        self._indexed_cols = self._column_name_generator(input_cols, suffix)
-        self.indexers = StringIndexer(
-            inputCols=input_cols, outputCols=self._indexed_cols
+    def _builder(self,):
+        # first we deploy imputer
+        if self.impute_missing_values:
+            imputer = Imputer(
+                inputCols=self.numeric_features,
+                outputCols=self.numeric_features,
+                strategy=self.missing_value_strategy,
+            )
+        else:
+            imputer = Connector()
+
+        # we need Vector Assambler here anyway
+        assemble_numeric = VectorAssembler(
+            inputCols=self.numeric_features, outputCol="numeric_features"
         )
-        return None
 
-    def _encoder(self, input_cols: list, suffix: str = "_onehot") -> None:
-        """spark's one hot encoder transformer"""
-        self._encoded_cols = self._column_name_generator(input_cols, suffix)
-        self.encoders = OneHotEncoder(
-            inputCols=input_cols, outputCols=self._encoded_cols, dropLast=False
+        # if we need normalizer
+        if self.normalize:
+            normalizer = Normalizer(
+                inputCol="numeric_features", outputCol="numeric_features1"
+            )
+            column_handler1 = ColumnHandler()
+        else:
+            normalizer = Connector()
+            column_handler1 = Connector()
+
+        # standard scaler
+        if self.standard_scale:
+            standard_scaler = StandardScaler(
+                inputCol="numeric_features",
+                outputCol="numeric_features1",
+                withMean=self.standard_scaler_withMean,
+                withStd=self.standard_scaler_withStd,
+            )
+            column_handler2 = ColumnHandler()
+        else:
+            standard_scaler = Connector()
+            column_handler2 = Connector()
+
+        # -------------Build Pipeline---------------
+        self.pipeline = Pipeline(
+            stages=[
+                imputer,
+                assemble_numeric,
+                normalizer,
+                column_handler1,
+                standard_scaler,
+                column_handler2,
+            ]
         )
-        return None
 
-    def _imputer(
-        self, input_cols: list, suffix: str = "_imputed", strategy: str = "mean"
-    ) -> None:
-        self._imputed_cols = self._column_name_generator(input_cols, suffix)
-        self.imputers = Imputer(
-            inputCols=input_cols,
-            outputCols=self._imputed_cols,
-            strategy=self.missing_value_strategy,
-        )
-        return None
-
-    def _vector_assembler(
-        self, input_cols: list, output_cols: str = "features"
-    ) -> None:
-        """spark's Vector Assembler transformer"""
-        self.vector = VectorAssembler(inputCols=input_cols, outputCol="features")
-        return None
-
-    def _pipeline(self, stages: list) -> None:
-        """spark's Pipeline class """
-        self.pipeline = Pipeline(stages=stages)
-        return None
-
-    # ===============================Pipelines==========================================
-    def _pipeline_numeric(self) -> None:
-        """->Vector Assembler"""
-        self._vector_assembler(input_cols=self.numeric_features, output_cols="features")
-        # pipeline
-        self._pipeline([self.vector])
-        return None
-
-    def _pipeline_numeric_imputer(self) -> None:
-        """->imputer -> Vector Assembler"""
-        self._imputer(input_cols=self.numeric_features)
-        self._vector_assembler(input_cols=self.numeric_features, output_cols="features")
-        # pipeline
-        self._pipeline([self.imputers, self.vector])
-
-    def _pipeline_categorical(self) -> None:
-        # transformers
-        self._indexer(input_cols=self.categorical_features)
-        self._encoder(input_cols=self._indexed_cols)
-        self._vector_assembler(input_cols=self._encoded_cols, output_cols="features")
-        # pipeline
-        self._pipeline([self.indexers, self.encoders, self.vector])
-
-    def _pipeline_mixed(self) -> None:
-        """indexer -> Categorical-> Vector Assembler"""
-        # transformers
-        self._indexer(input_cols=self.categorical_features)
-        self._encoder(input_cols=self._indexed_cols)
-        self._vector_assembler(
-            input_cols=self.numeric_features + self._encoded_cols,
-            output_cols="features",
-        )
-        # pipeline
-        self._pipeline([self.indexers, self.encoders, self.vector])
-        return None
-
-    def _pipeline_mixed_imputer(self) -> None:
-        """indexer -> Categorical-> Vector Assembler"""
-        # transformers
-        self._indexer(input_cols=self.categorical_features)
-        self._encoder(input_cols=self._indexed_cols)
-        self._imputer(input_cols=self.numeric_features)
-        self._vector_assembler(
-            input_cols=self._imputed_cols + self._encoded_cols, output_cols="features"
-        )
-        # pipeline
-        self._pipeline([self.indexers, self.encoders, self.imputers, self.vector])
         return None
 
     # ====================================Executions=================================================
     def run_pipeline(self):
-        """ This is will run pipeline accoding to user selections"""
+        """ This is will run pipeline with some required steps"""
 
         # make sure target column is of double type
         self.train_data = self._cast_double_type(
@@ -148,46 +130,8 @@ class Preprocessor:
         self.hold_out_data = self._cast_double_type(
             df=self.hold_out_data, column=self.target_feature
         )
-
-        # numeric only pipeline
-        if (
-            self.categorical_features is None
-            and self.numeric_features is not None
-            and self.impute_missing_values == False
-        ):
-            self._pipeline_numeric()
-
-        # numeric + imputation
-        if (
-            self.categorical_features is None
-            and self.numeric_features is not None
-            and self.impute_missing_values == True
-        ):
-            self._pipeline_numeric_imputer()
-
-        # categorical only
-        if (
-            self.categorical_features is not None
-            and self.numeric_features is None
-            and self.impute_missing_values == False
-        ):
-            self._pipeline_categorical()
-
-        # mixed (numeric + categorical) pipeline
-        if (
-            self.categorical_features is not None
-            and self.numeric_features is not None
-            and self.impute_missing_values == False
-        ):
-            self._pipeline_mixed()
-
-        # mixed + imputer  pipeline
-        if (
-            self.categorical_features is not None
-            and self.numeric_features is not None
-            and self.impute_missing_values == True
-        ):
-            self._pipeline_mixed_imputer()
+        # run pipeline Builder
+        self._builder()
 
         return None
 
