@@ -193,6 +193,38 @@ class Preprocessor:
             max_abs_scaler = Connector()
             column_handler5 = Connector()
 
+        # categorical_features
+        # _________________________________________________________________________
+
+        if self.categorical_features:
+            str_indexer = StringIndexer(
+                inputCols=self.categorical_features,
+                outputCols=[
+                    column + str("_indexer") for column in self.categorical_features
+                ],
+            )
+            encoder = OneHotEncoder(
+                inputCols=[
+                    column + str("_indexer") for column in self.categorical_features
+                ],
+                outputCols=[
+                    column + str("_encoder") for column in self.categorical_features
+                ],
+                dropLast=False,
+            )
+
+            onehot_assembler = VectorAssembler(
+                inputCols=[
+                    column + str("_encoder") for column in self.categorical_features
+                ],
+                outputCol="categorical_features",
+            )
+
+        else:
+            str_indexer = Connector()
+            encoder = Connector()
+            onehot_assembler = Connector()
+
         # -------------Build Pipeline---------------
         self.pipeline = Pipeline(
             stages=[
@@ -210,6 +242,9 @@ class Preprocessor:
                 column_handler5,
                 polynomial,
                 column_handler6,
+                str_indexer,
+                encoder,
+                onehot_assembler,
             ]
         )
 
