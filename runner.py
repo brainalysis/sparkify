@@ -64,7 +64,8 @@ pipe = Preprocessor(
     session_id=345,
     impute_missing_values=True,
     missing_value_strategy="mean",
-    robust_scale=True,
+    robust_scale=False,
+    min_max_scale=True,
 )
 
 pipe.run_pipeline()
