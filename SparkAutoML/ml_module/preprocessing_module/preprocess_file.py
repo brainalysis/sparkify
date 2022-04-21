@@ -11,6 +11,7 @@ from pyspark.ml.feature import (
     StandardScaler,
     RobustScaler,
     MinMaxScaler,
+    MaxAbsScaler,
 )
 from pyspark.ml import Pipeline
 from pyspark.sql.types import DoubleType
@@ -49,6 +50,7 @@ class Preprocessor:
         min_max_scale=False,
         min_max_scale_min=0,
         min_max_scale_max=1,
+        max_abs_scale=False,
     ) -> None:
 
         self.train_data = training_data
@@ -72,6 +74,7 @@ class Preprocessor:
         self.min_max_scale = min_max_scale
         self.min_max_scale_min = min_max_scale_min
         self.min_max_scale_max = min_max_scale_max
+        self.max_abs_scale = max_abs_scale
 
     # def _column_name_generator(self, input_cols: list, suffix: str) -> list:
     #     """This function adds suffix to the list of columns"""
@@ -159,6 +162,18 @@ class Preprocessor:
             min_max_scaler = Connector()
             column_handler4 = Connector()
 
+        # Max Abs Scaler
+        if self.max_abs_scale:
+            max_abs_scaler = MaxAbsScaler(
+                inputCol="numeric_features", outputCol="numeric_features1",
+            )
+            column_handler5 = ColumnHandler(
+                delete_col="numeric_features", replace_col="numeric_features1"
+            )
+        else:
+            max_abs_scaler = Connector()
+            column_handler5 = Connector()
+
         # -------------Build Pipeline---------------
         self.pipeline = Pipeline(
             stages=[
@@ -172,6 +187,8 @@ class Preprocessor:
                 column_handler3,
                 min_max_scaler,
                 column_handler4,
+                max_abs_scaler,
+                column_handler5,
             ]
         )
 
