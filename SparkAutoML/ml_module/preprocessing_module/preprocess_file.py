@@ -9,6 +9,7 @@ from pyspark.ml.feature import (
     Imputer,
     Normalizer,
     StandardScaler,
+    RobustScaler,
 )
 from pyspark.ml import Pipeline
 from pyspark.sql.types import DoubleType
@@ -39,6 +40,11 @@ class Preprocessor:
         standard_scale=False,
         standard_scaler_withMean=False,
         standard_scaler_withStd=True,
+        robust_scale=False,
+        robust_scale_withScaling=True,
+        robust_scale_withCentering=False,
+        robust_scale_lower=0.25,
+        robust_scale_upper=0.75,
     ) -> None:
 
         self.train_data = training_data
@@ -54,6 +60,11 @@ class Preprocessor:
         self.standard_scale = standard_scale
         self.standard_scaler_withMean = standard_scaler_withMean
         self.standard_scaler_withStd = standard_scaler_withStd
+        self.robust_scale = robust_scale
+        self.robust_scale_withScaling = robust_scale_withScaling
+        self.robust_scale_withCentering = robust_scale_withCentering
+        self.robust_scale_lower = robust_scale_lower
+        self.robust_scale_upper = robust_scale_upper
 
     # def _column_name_generator(self, input_cols: list, suffix: str) -> list:
     #     """This function adds suffix to the list of columns"""
@@ -87,7 +98,9 @@ class Preprocessor:
             normalizer = Normalizer(
                 inputCol="numeric_features", outputCol="numeric_features1"
             )
-            column_handler1 = ColumnHandler()
+            column_handler1 = ColumnHandler(
+                delete_col="numeric_features", replace_col="numeric_features1"
+            )
         else:
             normalizer = Connector()
             column_handler1 = Connector()
@@ -100,10 +113,29 @@ class Preprocessor:
                 withMean=self.standard_scaler_withMean,
                 withStd=self.standard_scaler_withStd,
             )
-            column_handler2 = ColumnHandler()
+            column_handler2 = ColumnHandler(
+                delete_col="numeric_features", replace_col="numeric_features1"
+            )
         else:
             standard_scaler = Connector()
             column_handler2 = Connector()
+
+        # robust Scaler
+        if self.robust_scale:
+            robust_scaler = RobustScaler(
+                inputCol="numeric_features",
+                outputCol="numeric_features1",
+                withScaling=self.robust_scale_withScaling,
+                withCentering=self.robust_scale_withCentering,
+                lower=self.robust_scale_lower,
+                upper=self.robust_scale_upper,
+            )
+            column_handler3 = ColumnHandler(
+                delete_col="numeric_features", replace_col="numeric_features1"
+            )
+        else:
+            robust_scaler = Connector()
+            column_handler3 = Connector()
 
         # -------------Build Pipeline---------------
         self.pipeline = Pipeline(
@@ -114,6 +146,8 @@ class Preprocessor:
                 column_handler1,
                 standard_scaler,
                 column_handler2,
+                robust_scaler,
+                column_handler3,
             ]
         )
 
