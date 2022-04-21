@@ -60,17 +60,18 @@ pipe = Preprocessor(
     hold_out_data=test,
     target_feature="LIMIT_BAL",
     numeric_features=["AGE", "EDUCATION",],
-    categorical_features=["BAL_CAT", "maturity"],
+    categorical_features=None,
     session_id=345,
-    impute_missing_values=True,
+    impute_missing_values=False,
     missing_value_strategy="mean",
     robust_scale=False,
     min_max_scale=False,
-    max_abs_scale=True,
+    max_abs_scale=False,
+    polynomial_feature=False,
 )
 
 pipe.run_pipeline()
 
 pipe.fit_transform()
 
-pipe.train_data_transformed.show()
+pipe.train_data_transformed.show(truncate=False)

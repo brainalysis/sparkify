@@ -12,6 +12,7 @@ from pyspark.ml.feature import (
     RobustScaler,
     MinMaxScaler,
     MaxAbsScaler,
+    PolynomialExpansion,
 )
 from pyspark.ml import Pipeline
 from pyspark.sql.types import DoubleType
@@ -51,6 +52,8 @@ class Preprocessor:
         min_max_scale_min=0,
         min_max_scale_max=1,
         max_abs_scale=False,
+        polynomial_feature=False,
+        polynomial_degree=3,
     ) -> None:
 
         self.train_data = training_data
@@ -75,6 +78,8 @@ class Preprocessor:
         self.min_max_scale_min = min_max_scale_min
         self.min_max_scale_max = min_max_scale_max
         self.max_abs_scale = max_abs_scale
+        self.polynomial_feature = polynomial_feature
+        self.polynomial_degree = polynomial_degree
 
     # def _column_name_generator(self, input_cols: list, suffix: str) -> list:
     #     """This function adds suffix to the list of columns"""
@@ -162,6 +167,20 @@ class Preprocessor:
             min_max_scaler = Connector()
             column_handler4 = Connector()
 
+        # Polynomial
+        if self.polynomial_feature:
+            polynomial = PolynomialExpansion(
+                inputCol="numeric_features",
+                outputCol="numeric_features1",
+                degree=self.polynomial_degree,
+            )
+            column_handler6 = ColumnHandler(
+                delete_col="numeric_features", replace_col="numeric_features1"
+            )
+        else:
+            polynomial = Connector()
+            column_handler6 = Connector()
+
         # Max Abs Scaler
         if self.max_abs_scale:
             max_abs_scaler = MaxAbsScaler(
@@ -189,6 +208,8 @@ class Preprocessor:
                 column_handler4,
                 max_abs_scaler,
                 column_handler5,
+                polynomial,
+                column_handler6,
             ]
         )
 
