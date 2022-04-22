@@ -59,19 +59,19 @@ pipe = Preprocessor(
     training_data=train,
     hold_out_data=test,
     target_feature="LIMIT_BAL",
-    numeric_features=["EDUCATION",],
+    numeric_features=["EDUCATION"],
     categorical_features=["BAL_CAT", "maturity", "AGE"],
     session_id=345,
     impute_missing_values=False,
     missing_value_strategy="mean",
-    robust_scale=False,
-    min_max_scale=False,
-    max_abs_scale=False,
-    polynomial_feature=False,
+    robust_scale=True,
+    min_max_scale=True,
+    max_abs_scale=True,
+    polynomial_feature=True,
 )
 
 pipe.run_pipeline()
 
 pipe.fit_transform()
 
-pipe.train_data_transformed[["AGE_encoder"]].show(truncate=False)
+pipe.train_data_transformed.show(truncate=False)

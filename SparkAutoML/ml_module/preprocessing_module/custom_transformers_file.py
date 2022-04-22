@@ -70,7 +70,7 @@ class ColumnHandler(
         Params._dummy(),
         "delete_col",
         "delete_col",
-        typeConverter=TypeConverters.toString,
+        typeConverter=TypeConverters.toListString,
     )
 
     replace_col = Param(
@@ -127,7 +127,7 @@ class ColumnHandler(
         delete_col = self.getDeleteCol()
         replace_col = self.getReplaceCol()
 
-        dataset = dataset.drop(delete_col)
-        dataset = dataset.withColumnRenamed(replace_col, delete_col)
+        dataset = dataset.drop(*delete_col)
+        dataset = dataset.withColumnRenamed(replace_col, delete_col[0])
 
         return dataset

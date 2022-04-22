@@ -114,7 +114,7 @@ class Preprocessor:
                 inputCol="numeric_features", outputCol="numeric_features1"
             )
             column_handler1 = ColumnHandler(
-                delete_col="numeric_features", replace_col="numeric_features1"
+                delete_col=["numeric_features"], replace_col="numeric_features1"
             )
         else:
             normalizer = Connector()
@@ -129,7 +129,7 @@ class Preprocessor:
                 withStd=self.standard_scaler_withStd,
             )
             column_handler2 = ColumnHandler(
-                delete_col="numeric_features", replace_col="numeric_features1"
+                delete_col=["numeric_features"], replace_col="numeric_features1"
             )
         else:
             standard_scaler = Connector()
@@ -146,7 +146,7 @@ class Preprocessor:
                 upper=self.robust_scale_upper,
             )
             column_handler3 = ColumnHandler(
-                delete_col="numeric_features", replace_col="numeric_features1"
+                delete_col=["numeric_features"], replace_col="numeric_features1"
             )
         else:
             robust_scaler = Connector()
@@ -161,11 +161,23 @@ class Preprocessor:
                 max=self.min_max_scale_max,
             )
             column_handler4 = ColumnHandler(
-                delete_col="numeric_features", replace_col="numeric_features1"
+                delete_col=["numeric_features"], replace_col="numeric_features1"
             )
         else:
             min_max_scaler = Connector()
             column_handler4 = Connector()
+
+        # Max Abs Scaler
+        if self.max_abs_scale:
+            max_abs_scaler = MaxAbsScaler(
+                inputCol="numeric_features", outputCol="numeric_features1",
+            )
+            column_handler5 = ColumnHandler(
+                delete_col=["numeric_features"], replace_col="numeric_features1"
+            )
+        else:
+            max_abs_scaler = Connector()
+            column_handler5 = Connector()
 
         # Polynomial
         if self.polynomial_feature:
@@ -175,55 +187,46 @@ class Preprocessor:
                 degree=self.polynomial_degree,
             )
             column_handler6 = ColumnHandler(
-                delete_col="numeric_features", replace_col="numeric_features1"
+                delete_col=["numeric_features"], replace_col="numeric_features1"
             )
         else:
             polynomial = Connector()
             column_handler6 = Connector()
 
-        # Max Abs Scaler
-        if self.max_abs_scale:
-            max_abs_scaler = MaxAbsScaler(
-                inputCol="numeric_features", outputCol="numeric_features1",
-            )
-            column_handler5 = ColumnHandler(
-                delete_col="numeric_features", replace_col="numeric_features1"
-            )
-        else:
-            max_abs_scaler = Connector()
-            column_handler5 = Connector()
-
         # categorical_features
         # _________________________________________________________________________
 
         if self.categorical_features:
+
+            # column names for string indexer
+            index_cols = [
+                column + str("_indexer") for column in self.categorical_features
+            ]
+            # column name for one hot encoder
+            encoder_cols = [
+                column + str("_encoder") for column in self.categorical_features
+            ]
+            # start making blocks
             str_indexer = StringIndexer(
-                inputCols=self.categorical_features,
-                outputCols=[
-                    column + str("_indexer") for column in self.categorical_features
-                ],
+                inputCols=self.categorical_features, outputCols=index_cols,
             )
             encoder = OneHotEncoder(
-                inputCols=[
-                    column + str("_indexer") for column in self.categorical_features
-                ],
-                outputCols=[
-                    column + str("_encoder") for column in self.categorical_features
-                ],
-                dropLast=False,
+                inputCols=index_cols, outputCols=encoder_cols, dropLast=False,
             )
 
             onehot_assembler = VectorAssembler(
-                inputCols=[
-                    column + str("_encoder") for column in self.categorical_features
-                ],
-                outputCol="categorical_features",
+                inputCols=encoder_cols, outputCol="categorical_features",
+            )
+
+            delete_indexer_encoder_columns = ColumnHandler(
+                delete_col=index_cols + encoder_cols, replace_col=None,
             )
 
         else:
             str_indexer = Connector()
             encoder = Connector()
             onehot_assembler = Connector()
+            delete_indexer_encoder_columns = Connector()
 
         # -------------Build Pipeline---------------
         self.pipeline = Pipeline(
@@ -245,6 +248,7 @@ class Preprocessor:
                 str_indexer,
                 encoder,
                 onehot_assembler,
+                delete_indexer_encoder_columns,
             ]
         )
 
