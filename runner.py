@@ -59,8 +59,8 @@ pipe = Preprocessor(
     training_data=train,
     hold_out_data=test,
     target_feature="LIMIT_BAL",
-    numeric_features=["EDUCATION"],
-    categorical_features=["BAL_CAT", "maturity", "AGE"],
+    numeric_features=["EDUCATION", "AGE"],
+    categorical_features=["BAL_CAT", "maturity"],
     session_id=345,
     impute_missing_values=False,
     missing_value_strategy="mean",
@@ -68,6 +68,8 @@ pipe = Preprocessor(
     min_max_scale=True,
     max_abs_scale=True,
     polynomial_feature=True,
+    interaction=True,
+    features_to_interact=["BAL_CAT", "maturity"],
 )
 
 pipe.run_pipeline()
