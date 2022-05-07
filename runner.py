@@ -1,4 +1,5 @@
 from typing import List
+from numpy import pi
 
 # import pyspark
 import pyspark.pandas as ps
@@ -8,6 +9,7 @@ import pyspark.pandas as ps
 
 from SparkAutoML.ml_module.BinaryClassifier_module.classifier_file import BClassifier
 from SparkAutoML.ml_module.Regression_module.regression_file import Regressor
+from SparkAutoML.ml_module.preprocessing_module.preprocess_file import Preprocessor
 
 # read data
 df = ps.read_csv("credit.csv")
@@ -41,26 +43,37 @@ train, test = spark_df.randomSplit([0.70, 0.30], seed=123)
 #     missing_value_strategy="mean",
 # )
 
-cf = Regressor(
+# cf = Regressor(
+#     training_data=train,
+#     hold_out_data=test,
+#     target_feature="LIMIT_BAL",
+#     numeric_features=["AGE", "EDUCATION",],
+#     categorical_features=["BAL_CAT", "maturity"],
+#     session_id=345,
+#     impute_missing_values=True,
+#     missing_value_strategy="mean",
+#     robust_scale= True
+# )
+
+pipe = Preprocessor(
     training_data=train,
     hold_out_data=test,
     target_feature="LIMIT_BAL",
-    numeric_features=["AGE", "EDUCATION",],
+    numeric_features=["EDUCATION", "AGE"],
     categorical_features=["BAL_CAT", "maturity"],
     session_id=345,
-    # impute_missing_values=True,
-    # missing_value_strategy="mean",
+    impute_missing_values=False,
+    missing_value_strategy="mean",
+    robust_scale=True,
+    min_max_scale=True,
+    max_abs_scale=True,
+    polynomial_feature=True,
+    interaction=True,
+    features_to_interact=["BAL_CAT", "maturity"],
 )
 
-# cf.create_model("dtr")
-comp = cf.compare_models()
+pipe.run_pipeline()
 
-# evl = cf.evaluate_model("hold_out")
+pipe.fit_transform()
 
-print(comp)
-
-pdf = cf.predict_model(test)
-
-# pdf.show()
-
-# print("done")
+pipe.train_data_transformed.show(truncate=False)
