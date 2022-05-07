@@ -3,7 +3,6 @@ from pyspark.sql import DataFrame as SparkDataFrame
 
 from pyspark.ml.feature import (
     VectorAssembler,
-    VectorIndexer,
     OneHotEncoder,
     StringIndexer,
     Imputer,
@@ -129,6 +128,24 @@ class Preprocessor:
             ]
 
         return input_cols
+
+    # function to put all individual assemblers to one assembler
+    def _final_features_list(self) -> list:
+
+        # check if numeric, categorical and interaction columns
+        # are required, if so , make a list of them
+
+        # make a lis that has the details
+        _list = [
+            ("numeric_features", self.numeric_features),
+            ("categorical_features", self.categorical_features),
+            ("interaction_features", self.interaction),
+        ]
+
+        # add to list if selects were true
+        result = [i[0] for i in _list if i[1]]
+
+        return result
 
     # ====================== Builder ===================================
 
@@ -262,7 +279,7 @@ class Preprocessor:
                 inputCols=self.encoder_cols, outputCol="categorical_features",
             )
 
-            delete_indexer_encoder_columns = ColumnHandler(
+            delete_indexer_columns = ColumnHandler(
                 delete_col=index_cols, replace_col=None,
             )
 
@@ -270,7 +287,7 @@ class Preprocessor:
             str_indexer = Connector()
             encoder = Connector()
             onehot_assembler = Connector()
-            delete_indexer_encoder_columns = Connector()
+            delete_indexer_columns = Connector()
 
         # interaction features
         # _________________________________________________________________________
@@ -286,6 +303,25 @@ class Preprocessor:
         else:
             interactor = Connector()
 
+        # Final Vector Assembler
+        # ---------------------------------------------------------------------------
+
+        # put together all the features through vector assembler
+        input_cols_final = self._final_features_list()
+
+        final_assembler = VectorAssembler(
+            inputCols=input_cols_final, outputCol="features"
+        )
+
+        # remove unwanted columns
+        delete_unwanted_columns_final = ColumnHandler(
+            delete_col=self.encoder_cols + input_cols_final
+            if self.categorical_features
+            else input_cols_final,
+            replace_col=None,
+        )
+
+        # ==========================================================================
         # -------------Build Pipeline---------------
         self.pipeline = Pipeline(
             stages=[
@@ -306,8 +342,10 @@ class Preprocessor:
                 str_indexer,
                 encoder,
                 onehot_assembler,
-                delete_indexer_encoder_columns,
+                delete_indexer_columns,
                 interactor,
+                final_assembler,
+                delete_unwanted_columns_final,
             ]
         )
 
